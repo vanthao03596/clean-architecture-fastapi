@@ -20,7 +20,7 @@ or care about these choices - it only knows about interfaces.
 from typing import AsyncGenerator
 
 from fastapi import Depends
-from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncEngine
+from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncEngine, AsyncSession
 
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
@@ -44,7 +44,7 @@ from app.application.dtos.user_dto import UserDTO
 
 # Module-level singletons (created once, reused throughout app lifecycle)
 _engine: AsyncEngine | None = None
-_session_factory: async_sessionmaker | None = None
+_session_factory: async_sessionmaker[AsyncSession] | None = None
 _token_repository: ITokenRepository | None = None
 
 
@@ -67,7 +67,7 @@ def get_database_engine(settings: Settings = Depends(get_settings)) -> AsyncEngi
 
 def get_session_factory(
     engine: AsyncEngine = Depends(get_database_engine),
-) -> async_sessionmaker:
+) -> async_sessionmaker[AsyncSession]:
     """Get or create session factory singleton.
 
     Args:
@@ -84,7 +84,7 @@ def get_session_factory(
 
 
 async def get_uow(
-    session_factory: async_sessionmaker = Depends(get_session_factory),
+    session_factory: async_sessionmaker[AsyncSession] = Depends(get_session_factory),
 ) -> AsyncGenerator[IUnitOfWork, None]:
     """
     Dependency that provides a Unit of Work instance.
@@ -158,7 +158,7 @@ def get_token_repository() -> ITokenRepository:
 
 def get_user_service(
     password_hasher: IPasswordHasher = Depends(get_password_hasher),
-    session_factory: async_sessionmaker = Depends(get_session_factory),
+    session_factory: async_sessionmaker[AsyncSession] = Depends(get_session_factory),
 ) -> UserService:
     """
     Dependency that provides UserService.
@@ -232,7 +232,7 @@ def get_auth_service(
     password_hasher: IPasswordHasher = Depends(get_password_hasher),
     token_service: ITokenService = Depends(get_token_service),
     token_repository: ITokenRepository = Depends(get_token_repository),
-    session_factory: async_sessionmaker = Depends(get_session_factory),
+    session_factory: async_sessionmaker[AsyncSession] = Depends(get_session_factory),
     settings: Settings = Depends(get_settings),
 ) -> AuthService:
     """

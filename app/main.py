@@ -56,7 +56,7 @@ app.include_router(auth.router, prefix="/api/v1")
 
 
 @app.get("/")
-async def root():
+async def root() -> dict[str, str]:
     """Health check endpoint."""
     return {
         "message": _settings.app_name,
@@ -67,7 +67,7 @@ async def root():
 
 
 @app.get("/config")
-async def show_config(settings: Settings = Depends(get_settings)):
+async def show_config(settings: Settings = Depends(get_settings)) -> dict[str, str | int | list[str]]:
     """Show current configuration (non-sensitive data only).
 
     WARNING: Only for development/debugging. Remove in production.

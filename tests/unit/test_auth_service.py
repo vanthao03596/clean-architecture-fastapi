@@ -23,6 +23,8 @@ from tests.fakes.password_hasher_fake import FakePasswordHasher
 from tests.fakes.token_service_fake import FakeTokenService
 from tests.fakes.token_repository_fake import FakeTokenRepository
 
+pytestmark = pytest.mark.unit
+
 
 @pytest.fixture
 def sample_user() -> User:

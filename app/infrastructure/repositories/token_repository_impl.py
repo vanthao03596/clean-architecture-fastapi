@@ -162,7 +162,7 @@ class InMemoryTokenRepository(ITokenRepository):
 
             return len(expired_tokens)
 
-    async def get_stats(self) -> dict:
+    async def get_stats(self) -> dict[str, int]:
         """
         Get repository statistics (useful for monitoring).
 

@@ -56,7 +56,7 @@ class Argon2PasswordHasher(IPasswordHasher):
         # Returns: False
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Initialize Argon2 password hasher with secure defaults.
 

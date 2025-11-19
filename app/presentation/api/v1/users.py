@@ -21,7 +21,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 async def create_user(
     dto: CreateUserDTO,
     service: UserService = Depends(get_user_service),
-):
+) -> UserDTO:
     """
     Create a new user.
 
@@ -41,7 +41,7 @@ async def create_user(
 async def get_user(
     user_id: int,
     service: UserService = Depends(get_user_service),
-):
+) -> UserDTO:
     """Get user by ID."""
     return await service.get_user_by_id(user_id)
 
@@ -56,7 +56,7 @@ async def get_users(
     skip: int = 0,
     limit: int = 100,
     service: UserService = Depends(get_user_service),
-):
+) -> List[UserDTO]:
     """Get all users with pagination."""
     return await service.get_all_users(skip=skip, limit=limit)
 
@@ -71,7 +71,7 @@ async def update_user(
     user_id: int,
     dto: UpdateUserDTO,
     service: UserService = Depends(get_user_service),
-):
+) -> UserDTO:
     """Update user."""
     return await service.update_user(user_id, dto)
 
@@ -85,6 +85,6 @@ async def update_user(
 async def delete_user(
     user_id: int,
     service: UserService = Depends(get_user_service),
-):
+) -> None:
     """Delete user."""
     await service.delete_user(user_id)

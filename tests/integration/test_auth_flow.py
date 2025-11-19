@@ -9,6 +9,8 @@ Tests the complete authentication flow with real database and HTTP endpoints:
 import pytest
 from fastapi.testclient import TestClient
 
+pytestmark = pytest.mark.integration
+
 
 def test_complete_auth_flow(client: TestClient):
     """Test complete authentication flow: register → login → access protected endpoint."""

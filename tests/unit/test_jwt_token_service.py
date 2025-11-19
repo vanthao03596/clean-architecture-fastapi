@@ -15,6 +15,8 @@ import jwt
 from app.infrastructure.security.jwt_token_service import JWTTokenService
 from tests.fakes.token_repository_fake import FakeTokenRepository
 
+pytestmark = pytest.mark.unit
+
 
 @pytest.fixture
 def fake_token_repository():

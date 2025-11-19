@@ -1,7 +1,7 @@
 """Unit of Work interface - domain layer."""
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from app.domain.repositories.user_repository import IUserRepository
@@ -36,7 +36,7 @@ class IUnitOfWork(ABC):
         pass
 
     @abstractmethod
-    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+    async def __aexit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: Any) -> None:
         """
         Exit async context manager.
 

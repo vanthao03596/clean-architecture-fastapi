@@ -8,6 +8,8 @@ import pytest
 from tests.fakes.password_hasher_fake import FakePasswordHasher
 from app.infrastructure.security.argon2_password_hasher import Argon2PasswordHasher
 
+pytestmark = pytest.mark.unit
+
 
 class TestFakePasswordHasher:
     """Test the fake password hasher implementation."""

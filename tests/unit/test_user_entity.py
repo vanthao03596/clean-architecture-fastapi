@@ -12,6 +12,8 @@ from datetime import datetime, timezone
 from app.domain.entities.user import User
 from app.domain.exceptions import InvalidEntityStateException, BusinessRuleViolationException
 
+pytestmark = pytest.mark.unit
+
 
 # === USER CREATION TESTS ===
 
@@ -142,6 +144,8 @@ def test_change_name_success():
 
     # Assert
     assert user.name == "New Name"
+    assert user.updated_at is not None
+    assert old_updated_at is not None
     assert user.updated_at > old_updated_at
 
 
@@ -223,6 +227,8 @@ def test_change_email_success():
 
     # Assert
     assert user.email == "new@example.com"
+    assert user.updated_at is not None
+    assert old_updated_at is not None
     assert user.updated_at > old_updated_at
 
 

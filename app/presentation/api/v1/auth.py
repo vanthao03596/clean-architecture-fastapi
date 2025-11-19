@@ -21,7 +21,7 @@ router = APIRouter(prefix="/auth", tags=["authentication"])
 async def login(
     dto: LoginDTO,
     auth_service: AuthService = Depends(get_auth_service),
-):
+) -> TokenDTO:
     """
     Authenticate user and receive JWT tokens.
 
@@ -44,7 +44,7 @@ async def login(
 async def refresh_token(
     dto: RefreshTokenDTO,
     auth_service: AuthService = Depends(get_auth_service),
-):
+) -> TokenDTO:
     """
     Get new access token using refresh token.
 
@@ -66,7 +66,7 @@ async def refresh_token(
 )
 async def get_me(
     current_user: UserDTO = Depends(get_current_user),
-):
+) -> UserDTO:
     """
     Get current authenticated user.
 

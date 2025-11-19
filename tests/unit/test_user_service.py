@@ -12,6 +12,8 @@ from app.application.dtos.user_dto import CreateUserDTO, UpdateUserDTO
 from app.application.exceptions import UserNotFoundError, UserAlreadyExistsError
 from tests.fakes.unit_of_work_fake import FakeUnitOfWork
 
+pytestmark = pytest.mark.unit
+
 
 class TestUserServiceCreate:
     """Test cases for creating users."""
