@@ -1,18 +1,30 @@
 """User DTOs for application layer using Pydantic."""
 
 from datetime import datetime
-from typing import Optional
-from pydantic import BaseModel, EmailStr, ConfigDict
+from typing import Annotated, Optional
+from pydantic import BaseModel, EmailStr, ConfigDict, Field, BeforeValidator
 
 from app.domain.entities.user import User
 
 
+def strip_whitespace(v: str | None) -> str | None:
+    """Strip whitespace from string values."""
+    return v.strip() if isinstance(v, str) else v
+
+
 class CreateUserDTO(BaseModel):
-    """DTO for creating a user."""
+    """
+    DTO for creating a user.
+
+    Validation:
+    - email: Must be valid email format (EmailStr)
+    - name: Cannot be empty, whitespace is automatically trimmed (min_length=1 after stripping)
+    - password: Must be at least 8 characters (min_length=8)
+    """
 
     email: EmailStr
-    name: str
-    password: str  # Plain password, will be hashed
+    name: Annotated[str, BeforeValidator(strip_whitespace), Field(min_length=1)]
+    password: Annotated[str, Field(min_length=8)]
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -26,10 +38,17 @@ class CreateUserDTO(BaseModel):
 
 
 class UpdateUserDTO(BaseModel):
-    """DTO for updating a user."""
+    """
+    DTO for updating a user.
+
+    Validation:
+    - email: Must be valid email format if provided (EmailStr)
+    - name: Cannot be empty if provided, whitespace is automatically trimmed (min_length=1 after stripping)
+    - None values are allowed for fields not being updated
+    """
 
     email: Optional[EmailStr] = None
-    name: Optional[str] = None
+    name: Annotated[str, BeforeValidator(strip_whitespace), Field(min_length=1)] | None = None
 
     model_config = ConfigDict(
         json_schema_extra={
