@@ -1,7 +1,7 @@
 """User repository implementation using SQLAlchemy."""
 
 from typing import Optional, List
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.entities.user import User
@@ -67,7 +67,12 @@ class UserRepository(IUserRepository):
         return user_model.to_entity()
 
     async def update(self, entity: User) -> User:
-        """Update existing user."""
+        """
+        Update existing user.
+
+        Note: The repository is responsible for managing the updated_at timestamp.
+        This keeps the domain layer pure by moving infrastructure concerns here.
+        """
         if entity.id is None:
             raise ValueError("Cannot update user without ID")
 
@@ -80,10 +85,11 @@ class UserRepository(IUserRepository):
         if user_model is None:
             raise ValueError(f"User with ID {entity.id} not found")
 
-        # Update fields
+        # Update fields from entity
         user_model.email = entity.email
         user_model.name = entity.name
         user_model.password_hash = entity.password_hash
+        user_model.updated_at = func.now()
 
         await self._session.flush()
         await self._session.refresh(user_model)

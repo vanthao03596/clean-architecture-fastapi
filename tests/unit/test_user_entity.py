@@ -135,18 +135,14 @@ def test_change_name_success():
         email="test@example.com",
         name="Old Name",
         password_hash="hashed_password",
-        updated_at=datetime(2023, 1, 1, tzinfo=timezone.utc),
     )
-    old_updated_at = user.updated_at
 
     # Act
     user.change_name("New Name")
 
     # Assert
     assert user.name == "New Name"
-    assert user.updated_at is not None
-    assert old_updated_at is not None
-    assert user.updated_at > old_updated_at
+    # Note: updated_at is managed by repository (infrastructure layer)
 
 
 def test_change_name_empty_string():
@@ -189,25 +185,6 @@ def test_change_name_whitespace_only():
     assert user.name == "Old Name"
 
 
-def test_change_name_updates_timestamp():
-    """Test that change_name updates the updated_at timestamp."""
-    # Arrange
-    old_time = datetime(2023, 1, 1, tzinfo=timezone.utc)
-    user = User(
-        email="test@example.com",
-        name="Old Name",
-        password_hash="hashed_password",
-        updated_at=old_time,
-    )
-
-    # Act
-    user.change_name("New Name")
-
-    # Assert
-    assert user.updated_at is not None
-    assert user.updated_at > old_time
-
-
 # === CHANGE EMAIL TESTS ===
 
 
@@ -218,18 +195,14 @@ def test_change_email_success():
         email="old@example.com",
         name="Test User",
         password_hash="hashed_password",
-        updated_at=datetime(2023, 1, 1, tzinfo=timezone.utc),
     )
-    old_updated_at = user.updated_at
 
     # Act
     user.change_email("new@example.com")
 
     # Assert
     assert user.email == "new@example.com"
-    assert user.updated_at is not None
-    assert old_updated_at is not None
-    assert user.updated_at > old_updated_at
+    # Note: updated_at is managed by repository (infrastructure layer)
 
 
 def test_change_email_invalid_no_at_symbol():
@@ -270,22 +243,3 @@ def test_change_email_empty_string():
 
     # Email should remain unchanged
     assert user.email == "old@example.com"
-
-
-def test_change_email_updates_timestamp():
-    """Test that change_email updates the updated_at timestamp."""
-    # Arrange
-    old_time = datetime(2023, 1, 1, tzinfo=timezone.utc)
-    user = User(
-        email="old@example.com",
-        name="Test User",
-        password_hash="hashed_password",
-        updated_at=old_time,
-    )
-
-    # Act
-    user.change_email("new@example.com")
-
-    # Assert
-    assert user.updated_at is not None
-    assert user.updated_at > old_time

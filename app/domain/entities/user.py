@@ -1,7 +1,7 @@
 """User domain entity - pure business logic, no infrastructure."""
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Optional
 
 from app.domain.exceptions import InvalidEntityStateException, BusinessRuleViolationException
@@ -63,7 +63,6 @@ class User:
             )
 
         object.__setattr__(self, "name", new_name)
-        object.__setattr__(self, "updated_at", datetime.now(timezone.utc))
 
     def change_email(self, new_email: str) -> None:
         """
@@ -83,4 +82,3 @@ class User:
             )
 
         object.__setattr__(self, "email", new_email)
-        object.__setattr__(self, "updated_at", datetime.now(timezone.utc))
