@@ -7,10 +7,11 @@ Tests JWT token generation and validation:
 4. Token rotation support
 """
 
-import pytest
-from datetime import datetime, timezone, timedelta
 import time
+from datetime import UTC, datetime, timedelta
+
 import jwt
+import pytest
 
 from app.infrastructure.security.jwt_token_service import JWTTokenService
 from tests.fakes.token_repository_fake import FakeTokenRepository
@@ -106,13 +107,13 @@ def test_generate_access_token_expiration(jwt_service):
     email = "test@example.com"
 
     # Act
-    before_generation = datetime.now(timezone.utc)
+    before_generation = datetime.now(UTC)
     token = jwt_service.generate_access_token(user_id, email)
-    after_generation = datetime.now(timezone.utc)
+    _after_generation = datetime.now(UTC)
 
     payload = jwt.decode(token, options={"verify_signature": False})
     exp_timestamp = payload["exp"]
-    exp_datetime = datetime.fromtimestamp(exp_timestamp, tz=timezone.utc)
+    exp_datetime = datetime.fromtimestamp(exp_timestamp, tz=UTC)
 
     # Assert - token expires in approximately 30 minutes
     expected_exp = before_generation + timedelta(minutes=30)
@@ -213,13 +214,13 @@ def test_generate_refresh_token_expiration(jwt_service):
     email = "test@example.com"
 
     # Act
-    before_generation = datetime.now(timezone.utc)
+    before_generation = datetime.now(UTC)
     token = jwt_service.generate_refresh_token(user_id, email)
-    after_generation = datetime.now(timezone.utc)
+    _after_generation = datetime.now(UTC)
 
     payload = jwt.decode(token, options={"verify_signature": False})
     exp_timestamp = payload["exp"]
-    exp_datetime = datetime.fromtimestamp(exp_timestamp, tz=timezone.utc)
+    exp_datetime = datetime.fromtimestamp(exp_timestamp, tz=UTC)
 
     # Assert - token expires in approximately 7 days
     expected_exp = before_generation + timedelta(days=7)
@@ -418,14 +419,15 @@ def test_token_data_is_expired_property(jwt_service):
         token,
         "a" * 32,
         algorithms=["HS256"],
-        options={"verify_exp": False}  # Don't verify expiration during decode
+        options={"verify_exp": False},  # Don't verify expiration during decode
     )
     from app.domain.services.token_service import TokenData
+
     token_data = TokenData(
         user_id=int(payload["sub"]),
         email=payload["email"],
-        issued_at=datetime.fromtimestamp(payload["iat"], tz=timezone.utc),
-        expires_at=datetime.fromtimestamp(payload["exp"], tz=timezone.utc),
+        issued_at=datetime.fromtimestamp(payload["iat"], tz=UTC),
+        expires_at=datetime.fromtimestamp(payload["exp"], tz=UTC),
         token_id=payload["jti"],
     )
 

@@ -6,11 +6,9 @@ without a database.
 
 import pytest
 
-from app.domain.entities.user import User
-from app.application.services.user_service import UserService
 from app.application.dtos.user_dto import CreateUserDTO, UpdateUserDTO
-from app.application.exceptions import UserNotFoundError, UserAlreadyExistsError
-from tests.fakes.unit_of_work_fake import FakeUnitOfWork
+from app.application.exceptions import UserAlreadyExistsError, UserNotFoundError
+from app.domain.entities.user import User
 
 pytestmark = pytest.mark.unit
 
@@ -113,9 +111,7 @@ class TestUserServiceGet:
         assert exc_info.value.error_code == "USER_NOT_FOUND"
 
     @pytest.mark.asyncio
-    async def test_get_user_by_email_success(
-        self, user_service_with_data, sample_user
-    ):
+    async def test_get_user_by_email_success(self, user_service_with_data, sample_user):
         """Test retrieving user by email."""
         # Act
         result = await user_service_with_data.get_user_by_email(sample_user.email)
@@ -255,8 +251,7 @@ class TestUserServicePasswordVerification:
 
         # Act
         is_valid = await user_service.verify_password(
-            email="user@example.com",
-            password="correct_password"
+            email="user@example.com", password="correct_password"
         )
 
         # Assert
@@ -275,8 +270,7 @@ class TestUserServicePasswordVerification:
 
         # Act
         is_valid = await user_service.verify_password(
-            email="user@example.com",
-            password="wrong_password"
+            email="user@example.com", password="wrong_password"
         )
 
         # Assert
@@ -287,8 +281,7 @@ class TestUserServicePasswordVerification:
         """Test password verification for non-existent user."""
         # Act
         is_valid = await user_service.verify_password(
-            email="nonexistent@example.com",
-            password="any_password"
+            email="nonexistent@example.com", password="any_password"
         )
 
         # Assert

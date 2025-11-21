@@ -1,15 +1,15 @@
 """User service - application layer business logic."""
 
-from typing import Optional, List, Callable
+from collections.abc import Callable
 
-from app.domain.entities.user import User
-from app.domain.repositories.unit_of_work import IUnitOfWork
-from app.domain.services.password_hasher import IPasswordHasher
 from app.application.dtos.user_dto import CreateUserDTO, UpdateUserDTO, UserDTO
 from app.application.exceptions import (
     UserAlreadyExistsError,
     UserNotFoundError,
 )
+from app.domain.entities.user import User
+from app.domain.repositories.unit_of_work import IUnitOfWork
+from app.domain.services.password_hasher import IPasswordHasher
 
 
 class UserService:
@@ -116,7 +116,7 @@ class UserService:
 
             return UserDTO.from_entity(user)
 
-    async def get_user_by_email(self, email: str) -> Optional[UserDTO]:
+    async def get_user_by_email(self, email: str) -> UserDTO | None:
         """
         Get user by email.
 
@@ -134,7 +134,7 @@ class UserService:
 
             return UserDTO.from_entity(user)
 
-    async def get_all_users(self, skip: int = 0, limit: int = 100) -> List[UserDTO]:
+    async def get_all_users(self, skip: int = 0, limit: int = 100) -> list[UserDTO]:
         """
         Get all users with pagination.
 

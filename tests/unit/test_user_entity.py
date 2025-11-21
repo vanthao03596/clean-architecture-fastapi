@@ -6,11 +6,15 @@ Tests business rules and validations for the User entity:
 3. Email change with validation
 """
 
+from datetime import UTC, datetime
+
 import pytest
-from datetime import datetime, timezone
 
 from app.domain.entities.user import User
-from app.domain.exceptions import InvalidEntityStateException, BusinessRuleViolationException
+from app.domain.exceptions import (
+    BusinessRuleViolationException,
+    InvalidEntityStateException,
+)
 
 pytestmark = pytest.mark.unit
 
@@ -26,8 +30,8 @@ def test_create_valid_user():
         name="Test User",
         password_hash="hashed_password",
         id=1,
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
+        updated_at=datetime.now(UTC),
     )
 
     # Assert
@@ -60,7 +64,7 @@ def test_create_user_invalid_email_no_at_symbol():
     # Arrange, Act & Assert
     with pytest.raises(
         InvalidEntityStateException,
-        match="Invalid email address.*Email must contain '@' symbol"
+        match="Invalid email address.*Email must contain '@' symbol",
     ):
         User(
             email="invalid_email",
@@ -72,10 +76,7 @@ def test_create_user_invalid_email_no_at_symbol():
 def test_create_user_empty_email():
     """Test creating a user with empty email."""
     # Arrange, Act & Assert
-    with pytest.raises(
-        InvalidEntityStateException,
-        match="Invalid email address"
-    ):
+    with pytest.raises(InvalidEntityStateException, match="Invalid email address"):
         User(
             email="",
             name="Test User",
@@ -86,10 +87,7 @@ def test_create_user_empty_email():
 def test_create_user_empty_name():
     """Test creating a user with empty name."""
     # Arrange, Act & Assert
-    with pytest.raises(
-        InvalidEntityStateException,
-        match="Name cannot be empty"
-    ):
+    with pytest.raises(InvalidEntityStateException, match="Name cannot be empty"):
         User(
             email="test@example.com",
             name="",
@@ -100,10 +98,7 @@ def test_create_user_empty_name():
 def test_create_user_whitespace_only_name():
     """Test creating a user with whitespace-only name."""
     # Arrange, Act & Assert
-    with pytest.raises(
-        InvalidEntityStateException,
-        match="Name cannot be empty"
-    ):
+    with pytest.raises(InvalidEntityStateException, match="Name cannot be empty"):
         User(
             email="test@example.com",
             name="   ",
@@ -114,10 +109,7 @@ def test_create_user_whitespace_only_name():
 def test_create_user_empty_password_hash():
     """Test creating a user with empty password hash."""
     # Arrange, Act & Assert
-    with pytest.raises(
-        InvalidEntityStateException,
-        match="Password hash is required"
-    ):
+    with pytest.raises(InvalidEntityStateException, match="Password hash is required"):
         User(
             email="test@example.com",
             name="Test User",
@@ -156,8 +148,7 @@ def test_change_name_empty_string():
 
     # Act & Assert
     with pytest.raises(
-        BusinessRuleViolationException,
-        match="Cannot change name to empty value"
+        BusinessRuleViolationException, match="Cannot change name to empty value"
     ):
         user.change_name("")
 
@@ -176,8 +167,7 @@ def test_change_name_whitespace_only():
 
     # Act & Assert
     with pytest.raises(
-        BusinessRuleViolationException,
-        match="Cannot change name to empty value"
+        BusinessRuleViolationException, match="Cannot change name to empty value"
     ):
         user.change_name("   ")
 
@@ -217,7 +207,7 @@ def test_change_email_invalid_no_at_symbol():
     # Act & Assert
     with pytest.raises(
         BusinessRuleViolationException,
-        match="Cannot change email to invalid address.*Email must contain '@' symbol"
+        match="Cannot change email to invalid address.*Email must contain '@' symbol",
     ):
         user.change_email("invalid_email")
 
@@ -236,8 +226,7 @@ def test_change_email_empty_string():
 
     # Act & Assert
     with pytest.raises(
-        BusinessRuleViolationException,
-        match="Cannot change email to invalid address"
+        BusinessRuleViolationException, match="Cannot change email to invalid address"
     ):
         user.change_email("")
 

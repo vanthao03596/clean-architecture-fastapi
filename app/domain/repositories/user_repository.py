@@ -1,10 +1,9 @@
 """User repository interface."""
 
 from abc import abstractmethod
-from typing import Optional
 
-from app.domain.repositories.base import IRepository
 from app.domain.entities.user import User
+from app.domain.repositories.base import IRepository
 
 
 class IUserRepository(IRepository[User]):
@@ -17,7 +16,7 @@ class IUserRepository(IRepository[User]):
     """
 
     @abstractmethod
-    async def get_by_email(self, email: str) -> Optional[User]:
+    async def get_by_email(self, email: str) -> User | None:
         """
         Find a user by their email address.
 

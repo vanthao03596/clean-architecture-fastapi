@@ -6,22 +6,20 @@ Tests authentication use cases:
 3. Get current user from token
 """
 
-import pytest
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime, timedelta
 
-from app.domain.entities.user import User
-from app.application.services.auth_service import AuthService
+import pytest
+
 from app.application.dtos.auth_dto import LoginDTO, RefreshTokenDTO
 from app.application.exceptions.exceptions import (
     InvalidCredentialsError,
     InvalidTokenError,
     UserNotFoundError,
 )
+from app.application.services.auth_service import AuthService
+from app.domain.entities.user import User
 from app.domain.repositories.token_repository import TokenMetadata
 from tests.fakes.unit_of_work_fake import FakeUnitOfWork
-from tests.fakes.password_hasher_fake import FakePasswordHasher
-from tests.fakes.token_service_fake import FakeTokenService
-from tests.fakes.token_repository_fake import FakeTokenRepository
 
 pytestmark = pytest.mark.unit
 
@@ -34,8 +32,8 @@ def sample_user() -> User:
         email="test@example.com",
         name="Test User",
         password_hash="HASHED:password123",
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
+        updated_at=datetime.now(UTC),
     )
 
 
@@ -46,7 +44,9 @@ def fake_uow_with_user(sample_user):
 
 
 @pytest.fixture
-def auth_service(fake_uow_with_user, fake_token_service, fake_token_repository, fake_password_hasher):
+def auth_service(
+    fake_uow_with_user, fake_token_service, fake_token_repository, fake_password_hasher
+):
     """Provide AuthService with fake dependencies."""
 
     def uow_factory():
@@ -105,9 +105,7 @@ async def test_login_wrong_password(auth_service):
 
 
 @pytest.mark.asyncio
-async def test_login_stores_refresh_token_metadata(
-    auth_service, fake_token_repository
-):
+async def test_login_stores_refresh_token_metadata(auth_service, fake_token_repository):
     """Test that login stores refresh token metadata."""
     # Arrange
     login_dto = LoginDTO(email="test@example.com", password="password123")
@@ -117,9 +115,7 @@ async def test_login_stores_refresh_token_metadata(
 
     # Assert - verify refresh token was stored
     # Extract token_id from refresh token
-    token_data = auth_service._token_service.verify_refresh_token(
-        result.refresh_token
-    )
+    token_data = auth_service._token_service.verify_refresh_token(result.refresh_token)
     assert token_data is not None
     assert token_data.token_id is not None
 
@@ -241,7 +237,9 @@ async def test_refresh_token_expired_token(auth_service, sample_user):
 
 
 @pytest.mark.asyncio
-async def test_refresh_token_not_in_repository(auth_service, sample_user, fake_token_repository):
+async def test_refresh_token_not_in_repository(
+    auth_service, sample_user, fake_token_repository
+):
     """Test refresh fails when token not found in repository."""
     # Arrange - generate token but don't store it
     refresh_token = auth_service._token_service.generate_refresh_token(
@@ -256,14 +254,18 @@ async def test_refresh_token_not_in_repository(auth_service, sample_user, fake_t
 
 
 @pytest.mark.asyncio
-async def test_refresh_token_revoked_token(auth_service, sample_user, fake_token_repository):
+async def test_refresh_token_revoked_token(
+    auth_service, sample_user, fake_token_repository
+):
     """Test refresh fails with revoked token."""
     # Arrange
     login_dto = LoginDTO(email="test@example.com", password="password123")
     login_result = await auth_service.login(login_dto)
 
     # Revoke the token
-    token_data = auth_service._token_service.verify_refresh_token(login_result.refresh_token)
+    token_data = auth_service._token_service.verify_refresh_token(
+        login_result.refresh_token
+    )
     await fake_token_repository.revoke_token(token_data.token_id)
 
     # Act & Assert
@@ -283,7 +285,7 @@ async def test_refresh_token_reuse_within_overlap_previous_token_allowed(
 
     # First refresh - this marks the original token as used
     refresh_dto = RefreshTokenDTO(refresh_token=login_result.refresh_token)
-    first_refresh = await auth_service.refresh_token(refresh_dto)
+    _first_refresh = await auth_service.refresh_token(refresh_dto)
 
     # Act - reuse the ORIGINAL (previous) token within overlap period
     # This should succeed because it's the immediate previous token
@@ -309,7 +311,7 @@ async def test_refresh_token_reuse_within_overlap_older_token_breach(
 
     # Second refresh - now the original token is 2 steps back
     refresh_dto_2 = RefreshTokenDTO(refresh_token=first_refresh.refresh_token)
-    second_refresh = await auth_service.refresh_token(refresh_dto_2)
+    _second_refresh = await auth_service.refresh_token(refresh_dto_2)
 
     # Act - reuse the ORIGINAL token (2 steps back) within overlap period
     # This should trigger breach detection
@@ -333,11 +335,13 @@ async def test_refresh_token_reuse_outside_overlap_period_breach(
     login_result = await auth_service.login(login_dto)
 
     # Get token data
-    token_data = auth_service._token_service.verify_refresh_token(login_result.refresh_token)
+    token_data = auth_service._token_service.verify_refresh_token(
+        login_result.refresh_token
+    )
 
     # Manually set the used_at time to be outside overlap period (10 seconds ago)
     # We need to directly update the metadata since mark_token_used only sets it once
-    old_time = datetime.now(timezone.utc) - timedelta(seconds=10)
+    old_time = datetime.now(UTC) - timedelta(seconds=10)
     metadata = await fake_token_repository.get_token_metadata(token_data.token_id)
     updated_metadata = TokenMetadata(
         token_id=metadata.token_id,

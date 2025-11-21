@@ -16,8 +16,7 @@ The domain does NOT care:
 """
 
 from abc import ABC, abstractmethod
-from typing import Optional
-from datetime import datetime
+from datetime import UTC, datetime
 
 
 class TokenData:
@@ -26,15 +25,16 @@ class TokenData:
 
     This is a pure domain object with no framework dependencies.
     """
+
     def __init__(
         self,
         user_id: int,
         email: str,
         issued_at: datetime,
         expires_at: datetime,
-        token_id: Optional[str] = None,  # JWT ID (jti) for tracking
-        family_id: Optional[str] = None,  # Token family for rotation
-        parent_token_id: Optional[str] = None,  # Previous token in rotation chain
+        token_id: str | None = None,  # JWT ID (jti) for tracking
+        family_id: str | None = None,  # Token family for rotation
+        parent_token_id: str | None = None,  # Previous token in rotation chain
         rotation_sequence: int = 0,  # Position in rotation chain (0, 1, 2, ...)
     ):
         self.user_id = user_id
@@ -49,8 +49,9 @@ class TokenData:
     @property
     def is_expired(self) -> bool:
         """Check if token is expired."""
-        from datetime import datetime, timezone
-        return datetime.now(timezone.utc) > self.expires_at
+        from datetime import datetime
+
+        return datetime.now(UTC) > self.expires_at
 
 
 class ITokenService(ABC):
@@ -88,8 +89,8 @@ class ITokenService(ABC):
         self,
         user_id: int,
         email: str,
-        family_id: Optional[str] = None,
-        parent_token_id: Optional[str] = None,
+        family_id: str | None = None,
+        parent_token_id: str | None = None,
         rotation_sequence: int = 0,
     ) -> str:
         """
@@ -111,7 +112,7 @@ class ITokenService(ABC):
         pass
 
     @abstractmethod
-    def verify_token(self, token: str) -> Optional[TokenData]:
+    def verify_token(self, token: str) -> TokenData | None:
         """
         Verify and decode a token.
 
@@ -132,7 +133,7 @@ class ITokenService(ABC):
         pass
 
     @abstractmethod
-    def verify_refresh_token(self, token: str) -> Optional[TokenData]:
+    def verify_refresh_token(self, token: str) -> TokenData | None:
         """
         Verify and decode a refresh token.
 

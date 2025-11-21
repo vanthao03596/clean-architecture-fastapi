@@ -46,6 +46,11 @@ disallow_untyped_defs = false
 module = ["alembic.*"]
 ignore_missing_imports = true
 
+# Black configuration
+[tool.black]
+line-length = 88
+target-version = ["py313"]
+
 # Ruff configuration
 [tool.ruff]
 line-length = 88
@@ -79,6 +84,8 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]  # Allow unused imports in __init__.py
 "tests/**/*.py" = ["B008"]  # Allow function calls in argument defaults (pytest fixtures)
+"app/presentation/**/*.py" = ["B008"]  # Allow Depends() in FastAPI route defaults
+"app/main.py" = ["B008"]  # Allow Depends() in FastAPI route defaults
 
 # Coverage configuration
 [tool.coverage.run]

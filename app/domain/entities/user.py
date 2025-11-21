@@ -2,9 +2,11 @@
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 
-from app.domain.exceptions import InvalidEntityStateException, BusinessRuleViolationException
+from app.domain.exceptions import (
+    BusinessRuleViolationException,
+    InvalidEntityStateException,
+)
 
 
 @dataclass
@@ -19,9 +21,9 @@ class User:
     email: str
     name: str
     password_hash: str
-    id: Optional[int] = None
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
+    id: int | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
     def __post_init__(self) -> None:
         """

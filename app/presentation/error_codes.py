@@ -6,7 +6,6 @@ When you add a new exception, simply add its error_code to this mapping.
 
 from fastapi import status
 
-
 # Map error codes to HTTP status codes
 ERROR_CODE_TO_HTTP_STATUS = {
     # User-related errors
@@ -16,25 +15,20 @@ ERROR_CODE_TO_HTTP_STATUS = {
     "INVALID_CREDENTIALS": status.HTTP_401_UNAUTHORIZED,
     "EMAIL_NOT_VERIFIED": status.HTTP_403_FORBIDDEN,
     "INSUFFICIENT_PERMISSIONS": status.HTTP_403_FORBIDDEN,
-
     # Authentication errors
     "TOKEN_EXPIRED": status.HTTP_401_UNAUTHORIZED,
     "INVALID_TOKEN": status.HTTP_401_UNAUTHORIZED,
     "UNAUTHORIZED": status.HTTP_401_UNAUTHORIZED,
-
     # Domain errors (business rule violations)
     "INVALID_ENTITY_STATE": status.HTTP_400_BAD_REQUEST,
     "BUSINESS_RULE_VIOLATION": status.HTTP_400_BAD_REQUEST,
     "DOMAIN_ERROR": status.HTTP_400_BAD_REQUEST,
-
     # Application errors
     "APPLICATION_ERROR": status.HTTP_400_BAD_REQUEST,
     "VALIDATION_ERROR": status.HTTP_422_UNPROCESSABLE_ENTITY,
-
     # Resource errors
     "RESOURCE_NOT_FOUND": status.HTTP_404_NOT_FOUND,
     "RESOURCE_ALREADY_EXISTS": status.HTTP_409_CONFLICT,
-
     # Infrastructure errors
     "DATABASE_ERROR": status.HTTP_500_INTERNAL_SERVER_ERROR,
     "EXTERNAL_SERVICE_ERROR": status.HTTP_503_SERVICE_UNAVAILABLE,

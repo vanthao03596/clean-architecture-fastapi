@@ -37,7 +37,7 @@ class Settings(BaseSettings):
         default=5,
         description="Overlap period for refresh token rotation (Auth0-style). "
         "Previous token remains valid for this many seconds to handle "
-        "network latency and concurrent requests without triggering breach detection."
+        "network latency and concurrent requests without triggering breach detection.",
     )
 
     # Application
@@ -58,8 +58,8 @@ class Settings(BaseSettings):
         case_sensitive=False,
         extra="ignore",
     )
-    
-    @field_validator('secret_key')
+
+    @field_validator("secret_key")
     @classmethod
     def validate_secret_key(cls, v: str) -> str:
         """Ensure secret_key is provided and meets requirements."""

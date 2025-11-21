@@ -4,9 +4,8 @@ This fake token service implements simple, predictable token generation
 and validation for testing purposes.
 """
 
-from typing import Optional
-from datetime import datetime, timezone, timedelta
 import uuid
+from datetime import UTC, datetime, timedelta
 
 from app.domain.services.token_service import ITokenService, TokenData
 
@@ -47,7 +46,7 @@ class FakeTokenService(ITokenService):
         """Generate a fake access token."""
         token = f"access_{user_id}_{email}"
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         expires_at = now + timedelta(minutes=self.access_token_expire_minutes)
 
         token_data = TokenData(
@@ -64,8 +63,8 @@ class FakeTokenService(ITokenService):
         self,
         user_id: int,
         email: str,
-        family_id: Optional[str] = None,
-        parent_token_id: Optional[str] = None,
+        family_id: str | None = None,
+        parent_token_id: str | None = None,
         rotation_sequence: int = 0,
     ) -> str:
         """Generate a fake refresh token with rotation support."""
@@ -78,7 +77,7 @@ class FakeTokenService(ITokenService):
         # Include token_id in token string for uniqueness
         token = f"refresh_{user_id}_{email}_{token_id}"
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         expires_at = now + timedelta(days=self.refresh_token_expire_days)
 
         token_data = TokenData(
@@ -95,7 +94,7 @@ class FakeTokenService(ITokenService):
         self._tokens[token] = token_data
         return token
 
-    def verify_token(self, token: str) -> Optional[TokenData]:
+    def verify_token(self, token: str) -> TokenData | None:
         """Verify and decode a fake access token."""
         if token not in self._tokens:
             return None
@@ -108,7 +107,7 @@ class FakeTokenService(ITokenService):
 
         return token_data
 
-    def verify_refresh_token(self, token: str) -> Optional[TokenData]:
+    def verify_refresh_token(self, token: str) -> TokenData | None:
         """Verify and decode a fake refresh token."""
         if token not in self._tokens:
             return None
@@ -140,7 +139,7 @@ class FakeTokenService(ITokenService):
                 user_id=token_data.user_id,
                 email=token_data.email,
                 issued_at=token_data.issued_at,
-                expires_at=datetime.now(timezone.utc) - timedelta(seconds=1),
+                expires_at=datetime.now(UTC) - timedelta(seconds=1),
                 token_id=token_data.token_id,
                 family_id=token_data.family_id,
                 parent_token_id=token_data.parent_token_id,

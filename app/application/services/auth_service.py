@@ -12,21 +12,21 @@ DEPENDENCY INVERSION in action:
 - No dependencies on PyJWT, Argon2, or SQLAlchemy
 """
 
-from typing import Callable
 import logging
-from datetime import datetime, timezone
+from collections.abc import Callable
+from datetime import UTC, datetime
 
-from app.domain.repositories.unit_of_work import IUnitOfWork
-from app.domain.repositories.token_repository import ITokenRepository, TokenMetadata
-from app.domain.services.token_service import ITokenService, TokenData
-from app.domain.services.password_hasher import IPasswordHasher
-from app.application.dtos.auth_dto import LoginDTO, TokenDTO, RefreshTokenDTO
+from app.application.dtos.auth_dto import LoginDTO, RefreshTokenDTO, TokenDTO
 from app.application.dtos.user_dto import UserDTO
 from app.application.exceptions.exceptions import (
     InvalidCredentialsError,
     InvalidTokenError,
     UserNotFoundError,
 )
+from app.domain.repositories.token_repository import ITokenRepository, TokenMetadata
+from app.domain.repositories.unit_of_work import IUnitOfWork
+from app.domain.services.password_hasher import IPasswordHasher
+from app.domain.services.token_service import ITokenService, TokenData
 
 logger = logging.getLogger(__name__)
 
@@ -127,9 +127,7 @@ class AuthService:
             )
 
             # Decode to get metadata and store it
-            refresh_token_data = self._token_service.verify_refresh_token(
-                refresh_token
-            )
+            refresh_token_data = self._token_service.verify_refresh_token(refresh_token)
             if refresh_token_data:
                 await self._store_refresh_token(refresh_token_data)
 
@@ -192,7 +190,7 @@ class AuthService:
             raise InvalidTokenError("Token has been revoked")
 
         # === OVERLAP PERIOD LOGIC ===
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         # Check if this token has been used before
         if metadata.used_at is not None:
@@ -206,13 +204,18 @@ class AuthService:
                 # WITHIN OVERLAP PERIOD: Check if this is the IMMEDIATE previous token
                 # Only the previous token can be reused; older tokens trigger breach
                 if token_data.family_id:
-                    latest_token = await self._token_repository.get_latest_token_in_family(
-                        token_data.family_id
+                    latest_token = (
+                        await self._token_repository.get_latest_token_in_family(
+                            token_data.family_id
+                        )
                     )
 
                     # Check if current token is the parent of the latest token
                     # (i.e., this is the immediate previous token)
-                    if latest_token and latest_token.parent_token_id == token_data.token_id:
+                    if (
+                        latest_token
+                        and latest_token.parent_token_id == token_data.token_id
+                    ):
                         # This IS the immediate previous token - allow reuse
                         logger.info(
                             f"Previous token {token_data.token_id} (seq={token_data.rotation_sequence}) "
@@ -284,13 +287,12 @@ class AuthService:
                 email=user.email,
                 family_id=token_data.family_id,  # Inherit family
                 parent_token_id=token_data.token_id,  # Track parent
-                rotation_sequence=token_data.rotation_sequence + 1,  # Increment sequence
+                rotation_sequence=token_data.rotation_sequence
+                + 1,  # Increment sequence
             )
 
             # Store new refresh token metadata
-            new_token_data = self._token_service.verify_refresh_token(
-                new_refresh_token
-            )
+            new_token_data = self._token_service.verify_refresh_token(new_refresh_token)
             if new_token_data:
                 await self._store_refresh_token(new_token_data)
 

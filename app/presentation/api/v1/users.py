@@ -1,12 +1,10 @@
 """User API endpoints."""
 
-from typing import List
 from fastapi import APIRouter, Depends, status
 
-from app.application.services.user_service import UserService
 from app.application.dtos.user_dto import CreateUserDTO, UpdateUserDTO, UserDTO
+from app.application.services.user_service import UserService
 from app.presentation.dependencies import get_user_service
-
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -48,7 +46,7 @@ async def get_user(
 
 @router.get(
     "/",
-    response_model=List[UserDTO],
+    response_model=list[UserDTO],
     summary="Get all users",
     description="Retrieve all users with optional pagination.",
 )
@@ -56,7 +54,7 @@ async def get_users(
     skip: int = 0,
     limit: int = 100,
     service: UserService = Depends(get_user_service),
-) -> List[UserDTO]:
+) -> list[UserDTO]:
     """Get all users with pagination."""
     return await service.get_all_users(skip=skip, limit=limit)
 

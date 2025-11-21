@@ -1,24 +1,25 @@
 """FastAPI application entry point."""
 
-from fastapi import FastAPI, Depends
+from typing import Any
+
+from fastapi import Depends, FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.presentation.api.v1 import users, auth
-from app.presentation.exception_handlers import (
-    application_error_handler,
-    domain_exception_handler,
-    validation_error_handler,
-    database_error_handler,
-    generic_exception_handler,
-)
-from app.presentation.error_schemas import ValidationErrorResponse
 from app.application.exceptions import ApplicationError
 from app.domain.exceptions import DomainException
 from app.infrastructure.config.settings import Settings, get_settings
-
+from app.presentation.api.v1 import auth, users
+from app.presentation.error_schemas import ValidationErrorResponse
+from app.presentation.exception_handlers import (
+    application_error_handler,
+    database_error_handler,
+    domain_exception_handler,
+    generic_exception_handler,
+    validation_error_handler,
+)
 
 # Get settings for app configuration
 _settings = get_settings()
@@ -69,7 +70,9 @@ async def root() -> dict[str, str]:
 
 
 @app.get("/config")
-async def show_config(settings: Settings = Depends(get_settings)) -> dict[str, str | int | list[str]]:
+async def show_config(
+    settings: Settings = Depends(get_settings),
+) -> dict[str, str | int | list[str]]:
     """Show current configuration (non-sensitive data only).
 
     WARNING: Only for development/debugging. Remove in production.
@@ -83,7 +86,7 @@ async def show_config(settings: Settings = Depends(get_settings)) -> dict[str, s
     }
 
 
-def custom_openapi():
+def custom_openapi() -> dict[str, Any]:
     """
     Customize OpenAPI schema to use our custom validation error format.
 
@@ -114,7 +117,9 @@ def custom_openapi():
         del openapi_schema["components"]["schemas"]["ValidationError"]
 
     # Add our custom validation error schema
-    openapi_schema["components"]["schemas"]["ValidationErrorResponse"] = validation_schema
+    openapi_schema["components"]["schemas"][
+        "ValidationErrorResponse"
+    ] = validation_schema
 
     # Update all 422 response references to use our custom schema
     for path_data in openapi_schema.get("paths", {}).values():
@@ -125,7 +130,9 @@ def custom_openapi():
                         "description": "Validation Error",
                         "content": {
                             "application/json": {
-                                "schema": {"$ref": "#/components/schemas/ValidationErrorResponse"}
+                                "schema": {
+                                    "$ref": "#/components/schemas/ValidationErrorResponse"
+                                }
                             }
                         },
                     }
@@ -136,4 +143,4 @@ def custom_openapi():
 
 
 # Override the default OpenAPI schema generation
-app.openapi = custom_openapi
+app.openapi = custom_openapi  # type: ignore[method-assign]

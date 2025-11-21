@@ -1,6 +1,7 @@
 """Unit of Work implementation using SQLAlchemy."""
 
-from typing import Optional, Any
+from typing import Any
+
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.domain.repositories.unit_of_work import IUnitOfWork
@@ -26,7 +27,7 @@ class UnitOfWork(IUnitOfWork):
             session_factory: SQLAlchemy async session factory
         """
         self._session_factory = session_factory
-        self._session: Optional[AsyncSession] = None
+        self._session: AsyncSession | None = None
 
     async def __aenter__(self) -> "UnitOfWork":
         """
@@ -47,7 +48,12 @@ class UnitOfWork(IUnitOfWork):
 
         return self
 
-    async def __aexit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: Any) -> None:
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: Any,
+    ) -> None:
         """
         Exit context manager, committing or rolling back.
 

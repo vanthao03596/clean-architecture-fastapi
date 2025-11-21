@@ -16,7 +16,6 @@ This supports:
 
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Optional
 
 
 class TokenMetadata:
@@ -38,10 +37,12 @@ class TokenMetadata:
         issued_at: datetime,
         expires_at: datetime,
         is_revoked: bool = False,
-        family_id: Optional[str] = None,  # For token rotation tracking
-        used_at: Optional[datetime] = None,  # When token was first used (for overlap period)
+        family_id: str | None = None,  # For token rotation tracking
+        used_at: (
+            datetime | None
+        ) = None,  # When token was first used (for overlap period)
         rotation_sequence: int = 0,  # Position in rotation chain (0, 1, 2, ...)
-        parent_token_id: Optional[str] = None,  # Previous token in rotation chain
+        parent_token_id: str | None = None,  # Previous token in rotation chain
     ):
         self.token_id = token_id
         self.user_id = user_id
@@ -132,7 +133,7 @@ class ITokenRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_token_metadata(self, token_id: str) -> Optional[TokenMetadata]:
+    async def get_token_metadata(self, token_id: str) -> TokenMetadata | None:
         """
         Retrieve token metadata by token ID.
 
@@ -186,9 +187,7 @@ class ITokenRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_latest_token_in_family(
-        self, family_id: str
-    ) -> Optional[TokenMetadata]:
+    async def get_latest_token_in_family(self, family_id: str) -> TokenMetadata | None:
         """
         Get the most recent (highest rotation_sequence) token in a family.
 

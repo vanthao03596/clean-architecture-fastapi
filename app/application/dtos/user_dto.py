@@ -1,8 +1,9 @@
 """User DTOs for application layer using Pydantic."""
 
 from datetime import datetime
-from typing import Annotated, Optional
-from pydantic import BaseModel, EmailStr, ConfigDict, Field, BeforeValidator
+from typing import Annotated
+
+from pydantic import BaseModel, BeforeValidator, ConfigDict, EmailStr, Field
 
 from app.domain.entities.user import User
 
@@ -47,8 +48,10 @@ class UpdateUserDTO(BaseModel):
     - None values are allowed for fields not being updated
     """
 
-    email: Optional[EmailStr] = None
-    name: Annotated[str, BeforeValidator(strip_whitespace), Field(min_length=1)] | None = None
+    email: EmailStr | None = None
+    name: (
+        Annotated[str, BeforeValidator(strip_whitespace), Field(min_length=1)] | None
+    ) = None
 
     model_config = ConfigDict(
         json_schema_extra={

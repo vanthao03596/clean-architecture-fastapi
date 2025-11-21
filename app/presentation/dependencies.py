@@ -17,30 +17,30 @@ All these decisions are isolated here. The application layer doesn't know
 or care about these choices - it only knows about interfaces.
 """
 
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 from fastapi import Depends
-from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncEngine, AsyncSession
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-
-from app.domain.repositories.unit_of_work import IUnitOfWork
+from app.application.dtos.user_dto import UserDTO
+from app.application.services.auth_service import AuthService
+from app.application.services.user_service import UserService
 from app.domain.repositories.token_repository import ITokenRepository
+from app.domain.repositories.unit_of_work import IUnitOfWork
 from app.domain.services.password_hasher import IPasswordHasher
 from app.domain.services.token_service import ITokenService
-from app.infrastructure.repositories.unit_of_work_impl import UnitOfWork
-from app.infrastructure.repositories.token_repository_impl import InMemoryTokenRepository
+from app.infrastructure.config.settings import Settings, get_settings
 from app.infrastructure.persistence.database import (
     create_database_engine,
     create_session_factory,
 )
+from app.infrastructure.repositories.token_repository_impl import (
+    InMemoryTokenRepository,
+)
+from app.infrastructure.repositories.unit_of_work_impl import UnitOfWork
 from app.infrastructure.security.argon2_password_hasher import Argon2PasswordHasher
 from app.infrastructure.security.jwt_token_service import JWTTokenService
-from app.infrastructure.config.settings import Settings, get_settings
-from app.application.services.user_service import UserService
-from app.application.services.auth_service import AuthService
-from app.application.dtos.user_dto import UserDTO
-
 
 # Module-level singletons (created once, reused throughout app lifecycle)
 _engine: AsyncEngine | None = None
@@ -82,10 +82,9 @@ def get_session_factory(
     return _session_factory
 
 
-
 async def get_uow(
     session_factory: async_sessionmaker[AsyncSession] = Depends(get_session_factory),
-) -> AsyncGenerator[IUnitOfWork, None]:
+) -> AsyncGenerator[IUnitOfWork]:
     """
     Dependency that provides a Unit of Work instance.
 
@@ -248,6 +247,7 @@ def get_auth_service(
     Returns:
         AuthService instance with all dependencies injected
     """
+
     def uow_factory() -> IUnitOfWork:
         return UnitOfWork(session_factory)
 

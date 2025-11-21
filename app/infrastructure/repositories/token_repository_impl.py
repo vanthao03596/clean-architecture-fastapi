@@ -19,9 +19,8 @@ For production, replace with Redis:
 - Redis has built-in TTL for automatic cleanup
 """
 
-from datetime import datetime, timezone
-from typing import Dict, Optional
 import asyncio
+from datetime import UTC, datetime
 
 from app.domain.repositories.token_repository import ITokenRepository, TokenMetadata
 
@@ -46,11 +45,11 @@ class InMemoryTokenRepository(ITokenRepository):
     def __init__(self) -> None:
         """Initialize in-memory storage."""
         # Store token metadata by token_id
-        self._tokens: Dict[str, TokenMetadata] = {}
+        self._tokens: dict[str, TokenMetadata] = {}
 
         # Store token families for quick revocation
         # family_id -> set of token_ids
-        self._families: Dict[str, set[str]] = {}
+        self._families: dict[str, set[str]] = {}
 
         # Lock for thread-safe operations
         self._lock = asyncio.Lock()
@@ -116,7 +115,7 @@ class InMemoryTokenRepository(ITokenRepository):
                 return False
             return self._tokens[token_id].is_revoked
 
-    async def get_token_metadata(self, token_id: str) -> Optional[TokenMetadata]:
+    async def get_token_metadata(self, token_id: str) -> TokenMetadata | None:
         """
         Retrieve token metadata.
 
@@ -139,7 +138,7 @@ class InMemoryTokenRepository(ITokenRepository):
             Number of tokens removed
         """
         async with self._lock:
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             expired_tokens = [
                 token_id
                 for token_id, metadata in self._tokens.items()
@@ -198,9 +197,7 @@ class InMemoryTokenRepository(ITokenRepository):
                 if metadata.used_at is None:
                     metadata.used_at = used_at
 
-    async def get_latest_token_in_family(
-        self, family_id: str
-    ) -> Optional[TokenMetadata]:
+    async def get_latest_token_in_family(self, family_id: str) -> TokenMetadata | None:
         """
         Get the most recent token in a family by rotation_sequence.
 
@@ -251,7 +248,7 @@ class InMemoryTokenRepository(ITokenRepository):
                 return False
 
             # Check if used_at is within overlap_seconds from now
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             time_since_use = (now - metadata.used_at).total_seconds()
 
             return time_since_use <= overlap_seconds

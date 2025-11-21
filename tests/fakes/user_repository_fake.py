@@ -4,8 +4,7 @@ This fake repository stores data in memory and implements the same interface
 as the real repository, allowing you to test services in isolation.
 """
 
-from typing import Optional, List, Dict
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from app.domain.entities.user import User
 from app.domain.repositories.user_repository import IUserRepository
@@ -25,14 +24,14 @@ class FakeUserRepository(IUserRepository):
         created_user = await repo.add(user)
     """
 
-    def __init__(self, initial_data: Optional[List[User]] = None):
+    def __init__(self, initial_data: list[User] | None = None):
         """
         Initialize with empty in-memory storage.
 
         Args:
             initial_data: Optional list of users to pre-populate the repository
         """
-        self._users: Dict[int, User] = {}
+        self._users: dict[int, User] = {}
         self._next_id = 1
 
         # Pre-populate if initial data provided
@@ -44,8 +43,8 @@ class FakeUserRepository(IUserRepository):
                         email=user.email,
                         name=user.name,
                         password_hash=user.password_hash,
-                        created_at=user.created_at or datetime.now(timezone.utc),
-                        updated_at=user.updated_at or datetime.now(timezone.utc),
+                        created_at=user.created_at or datetime.now(UTC),
+                        updated_at=user.updated_at or datetime.now(UTC),
                     )
                     self._users[self._next_id] = user_with_id
                     self._next_id += 1
@@ -53,11 +52,11 @@ class FakeUserRepository(IUserRepository):
                     self._users[user.id] = user
                     self._next_id = max(self._next_id, user.id + 1)
 
-    async def get_by_id(self, id: int) -> Optional[User]:
+    async def get_by_id(self, id: int) -> User | None:
         """Get user by ID from memory."""
         return self._users.get(id)
 
-    async def get_all(self, skip: int = 0, limit: int = 100) -> List[User]:
+    async def get_all(self, skip: int = 0, limit: int = 100) -> list[User]:
         """Get all users from memory with pagination."""
         all_users = list(self._users.values())
         return all_users[skip : skip + limit]
@@ -72,7 +71,7 @@ class FakeUserRepository(IUserRepository):
         user_id = entity.id if entity.id is not None else self._next_id
 
         # Generate timestamps if not set
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         created_at = entity.created_at or now
         updated_at = entity.updated_at or now
 
@@ -106,7 +105,7 @@ class FakeUserRepository(IUserRepository):
             name=entity.name,
             password_hash=entity.password_hash,
             created_at=entity.created_at,
-            updated_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(UTC),
         )
 
         self._users[entity.id] = updated_user
@@ -123,7 +122,7 @@ class FakeUserRepository(IUserRepository):
         """Check if user exists in memory."""
         return id in self._users
 
-    async def get_by_email(self, email: str) -> Optional[User]:
+    async def get_by_email(self, email: str) -> User | None:
         """Find user by email in memory."""
         for user in self._users.values():
             if user.email == email:
@@ -145,6 +144,6 @@ class FakeUserRepository(IUserRepository):
         """Get total number of users (useful for assertions)."""
         return len(self._users)
 
-    def get_all_sync(self) -> List[User]:
+    def get_all_sync(self) -> list[User]:
         """Get all users synchronously (useful for quick checks in tests)."""
         return list(self._users.values())

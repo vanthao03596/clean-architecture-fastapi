@@ -8,15 +8,16 @@ These fixtures follow the Dependency Inversion Principle:
 - Tests are isolated (each test gets fresh fakes)
 """
 
-import pytest
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-from app.domain.entities.user import User
+import pytest
+
 from app.application.services.user_service import UserService
-from tests.fakes.unit_of_work_fake import FakeUnitOfWork
+from app.domain.entities.user import User
 from tests.fakes.password_hasher_fake import FakePasswordHasher
-from tests.fakes.token_service_fake import FakeTokenService
 from tests.fakes.token_repository_fake import FakeTokenRepository
+from tests.fakes.token_service_fake import FakeTokenService
+from tests.fakes.unit_of_work_fake import FakeUnitOfWork
 
 
 @pytest.fixture
@@ -42,8 +43,8 @@ def sample_user() -> User:
         email="test@example.com",
         name="Test User",
         password_hash="HASHED:password123",  # FakePasswordHasher format
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
+        updated_at=datetime.now(UTC),
     )
 
 
@@ -55,8 +56,8 @@ def another_user() -> User:
         email="another@example.com",
         name="Another User",
         password_hash="HASHED:password456",  # FakePasswordHasher format
-        created_at=datetime.now(timezone.utc),
-        updated_at=datetime.now(timezone.utc),
+        created_at=datetime.now(UTC),
+        updated_at=datetime.now(UTC),
     )
 
 
@@ -109,9 +110,7 @@ def user_service_with_data(fake_uow_with_users, fake_password_hasher):
     def uow_factory():
         return fake_uow_with_users
 
-    return UserService(
-        uow_factory=uow_factory, password_hasher=fake_password_hasher
-    )
+    return UserService(uow_factory=uow_factory, password_hasher=fake_password_hasher)
 
 
 @pytest.fixture

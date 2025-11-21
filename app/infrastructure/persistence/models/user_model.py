@@ -5,8 +5,8 @@ from datetime import datetime
 from sqlalchemy import String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
-from app.infrastructure.persistence.database import Base
 from app.domain.entities.user import User
+from app.infrastructure.persistence.database import Base
 
 
 class UserModel(Base):

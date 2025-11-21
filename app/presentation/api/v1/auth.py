@@ -2,11 +2,10 @@
 
 from fastapi import APIRouter, Depends, status
 
-from app.application.services.auth_service import AuthService
-from app.application.dtos.auth_dto import LoginDTO, TokenDTO, RefreshTokenDTO
+from app.application.dtos.auth_dto import LoginDTO, RefreshTokenDTO, TokenDTO
 from app.application.dtos.user_dto import UserDTO
+from app.application.services.auth_service import AuthService
 from app.presentation.dependencies import get_auth_service, get_current_user
-
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
 

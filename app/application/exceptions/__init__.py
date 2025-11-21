@@ -2,8 +2,8 @@
 
 from app.application.exceptions.exceptions import (
     ApplicationError,
-    UserNotFoundError,
     UserAlreadyExistsError,
+    UserNotFoundError,
 )
 
 __all__ = ["ApplicationError", "UserNotFoundError", "UserAlreadyExistsError"]

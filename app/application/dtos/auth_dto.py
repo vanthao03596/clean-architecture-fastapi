@@ -11,12 +11,7 @@ class LoginDTO(BaseModel):
 
     model_config = {
         "json_schema_extra": {
-            "examples": [
-                {
-                    "email": "user@example.com",
-                    "password": "securepassword123"
-                }
-            ]
+            "examples": [{"email": "user@example.com", "password": "securepassword123"}]
         }
     }
 
@@ -36,7 +31,7 @@ class TokenDTO(BaseModel):
                     "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
                     "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
                     "token_type": "bearer",
-                    "expires_in": 1800
+                    "expires_in": 1800,
                 }
             ]
         }
@@ -50,10 +45,6 @@ class RefreshTokenDTO(BaseModel):
 
     model_config = {
         "json_schema_extra": {
-            "examples": [
-                {
-                    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                }
-            ]
+            "examples": [{"refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."}]
         }
     }

@@ -4,10 +4,10 @@ This fake UoW provides the same interface as the real one but uses
 fake repositories that store data in memory.
 """
 
-from typing import List, Optional, cast
+from typing import cast
 
-from app.domain.repositories.unit_of_work import IUnitOfWork
 from app.domain.entities.user import User
+from app.domain.repositories.unit_of_work import IUnitOfWork
 from tests.fakes.user_repository_fake import FakeUserRepository
 
 
@@ -26,7 +26,7 @@ class FakeUnitOfWork(IUnitOfWork):
             await uow.commit()
     """
 
-    def __init__(self, initial_users: Optional[List[User]] = None):
+    def __init__(self, initial_users: list[User] | None = None):
         """
         Initialize with fake repositories.
 

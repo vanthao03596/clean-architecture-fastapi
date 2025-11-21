@@ -17,7 +17,11 @@ class ValidationErrorDetail(BaseModel):
     message: str = Field(
         ...,
         description="Human-readable error message describing what went wrong",
-        examples=["value is not a valid email address", "field required", "value is not a valid integer"],
+        examples=[
+            "value is not a valid email address",
+            "field required",
+            "value is not a valid integer",
+        ],
     )
 
 

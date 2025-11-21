@@ -4,29 +4,28 @@ Provides fixtures for integration testing with real database and FastAPI client.
 Uses SQLite in-memory database for fast, isolated tests.
 """
 
+from collections.abc import AsyncGenerator, Generator
+
 import pytest
 import pytest_asyncio
-from typing import AsyncGenerator, Generator
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
-    create_async_engine,
     async_sessionmaker,
+    create_async_engine,
 )
 
-from app.main import app
 from app.infrastructure.persistence.database import Base
-from app.infrastructure.config.settings import Settings
+from app.main import app
 from app.presentation.dependencies import get_session_factory
-
 
 # Test database URL (SQLite in-memory)
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
 
 @pytest_asyncio.fixture
-async def test_engine() -> AsyncGenerator[AsyncEngine, None]:
+async def test_engine() -> AsyncGenerator[AsyncEngine]:
     """Create a test database engine using SQLite in-memory."""
     engine = create_async_engine(
         TEST_DATABASE_URL,
@@ -60,14 +59,14 @@ async def test_session_factory(test_engine: AsyncEngine):
 
 
 @pytest_asyncio.fixture
-async def test_session(test_session_factory) -> AsyncGenerator[AsyncSession, None]:
+async def test_session(test_session_factory) -> AsyncGenerator[AsyncSession]:
     """Create a test database session."""
     async with test_session_factory() as session:
         yield session
 
 
 @pytest.fixture
-def client(test_session_factory) -> Generator[TestClient, None, None]:
+def client(test_session_factory) -> Generator[TestClient]:
     """
     Create a FastAPI test client with test database.
 

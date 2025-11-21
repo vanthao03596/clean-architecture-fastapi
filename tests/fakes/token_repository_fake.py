@@ -4,8 +4,7 @@ This fake repository stores token metadata in memory and implements the same
 interface as the real repository, allowing you to test services in isolation.
 """
 
-from typing import Optional, Dict
-from datetime import datetime, timezone, timedelta
+from datetime import UTC, datetime
 
 from app.domain.repositories.token_repository import ITokenRepository, TokenMetadata
 
@@ -32,7 +31,7 @@ class FakeTokenRepository(ITokenRepository):
 
     def __init__(self) -> None:
         """Initialize with empty in-memory storage."""
-        self._tokens: Dict[str, TokenMetadata] = {}
+        self._tokens: dict[str, TokenMetadata] = {}
 
     async def store_token(self, metadata: TokenMetadata) -> None:
         """Store token metadata in memory."""
@@ -80,13 +79,13 @@ class FakeTokenRepository(ITokenRepository):
             return False
         return self._tokens[token_id].is_revoked
 
-    async def get_token_metadata(self, token_id: str) -> Optional[TokenMetadata]:
+    async def get_token_metadata(self, token_id: str) -> TokenMetadata | None:
         """Retrieve token metadata by token ID."""
         return self._tokens.get(token_id)
 
     async def cleanup_expired_tokens(self) -> int:
         """Remove expired tokens from storage."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         expired_tokens = [
             token_id
             for token_id, metadata in self._tokens.items()
@@ -117,9 +116,7 @@ class FakeTokenRepository(ITokenRepository):
                     parent_token_id=metadata.parent_token_id,
                 )
 
-    async def get_latest_token_in_family(
-        self, family_id: str
-    ) -> Optional[TokenMetadata]:
+    async def get_latest_token_in_family(self, family_id: str) -> TokenMetadata | None:
         """Get the most recent (highest rotation_sequence) token in a family."""
         family_tokens = [
             metadata
@@ -142,7 +139,7 @@ class FakeTokenRepository(ITokenRepository):
         if not metadata or metadata.used_at is None:
             return False
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         time_since_first_use = (now - metadata.used_at).total_seconds()
 
         return time_since_first_use <= overlap_seconds

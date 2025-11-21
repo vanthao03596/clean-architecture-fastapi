@@ -1,13 +1,13 @@
 """Base repository interfaces following Clean Architecture."""
 
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar, Optional, List
+from typing import TypeVar
 
 # Generic type for domain entities
 T = TypeVar("T")
 
 
-class IRepository(ABC, Generic[T]):
+class IRepository[T](ABC):
     """
     Base repository interface defining standard CRUD operations.
 
@@ -19,7 +19,7 @@ class IRepository(ABC, Generic[T]):
     """
 
     @abstractmethod
-    async def get_by_id(self, id: int) -> Optional[T]:
+    async def get_by_id(self, id: int) -> T | None:
         """
         Retrieve an entity by its ID.
 
@@ -32,7 +32,7 @@ class IRepository(ABC, Generic[T]):
         pass
 
     @abstractmethod
-    async def get_all(self, skip: int = 0, limit: int = 100) -> List[T]:
+    async def get_all(self, skip: int = 0, limit: int = 100) -> list[T]:
         """
         Retrieve all entities with pagination.
 

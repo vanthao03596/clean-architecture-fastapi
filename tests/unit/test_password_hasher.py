@@ -5,8 +5,8 @@ These tests verify both the fake and real password hasher implementations.
 
 import pytest
 
-from tests.fakes.password_hasher_fake import FakePasswordHasher
 from app.infrastructure.security.argon2_password_hasher import Argon2PasswordHasher
+from tests.fakes.password_hasher_fake import FakePasswordHasher
 
 pytestmark = pytest.mark.unit
 
@@ -222,4 +222,6 @@ class TestPasswordHasherInterface:
             is_valid = hasher.verify(password, hashed)
 
             # Assert
-            assert is_valid, f"Failed to verify '{password}' with {hasher_class.__name__}"
+            assert (
+                is_valid
+            ), f"Failed to verify '{password}' with {hasher_class.__name__}"

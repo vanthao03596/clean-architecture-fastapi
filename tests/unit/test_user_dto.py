@@ -18,9 +18,7 @@ pytestmark = pytest.mark.unit
 def test_create_user_dto_valid():
     """Test creating DTO with valid data."""
     dto = CreateUserDTO(
-        email="test@example.com",
-        name="John Doe",
-        password="securepass123"
+        email="test@example.com", name="John Doe", password="securepass123"
     )
 
     assert dto.email == "test@example.com"
@@ -31,9 +29,7 @@ def test_create_user_dto_valid():
 def test_create_user_dto_strips_whitespace_from_name():
     """Test that name whitespace is stripped."""
     dto = CreateUserDTO(
-        email="test@example.com",
-        name="  John Doe  ",
-        password="securepass123"
+        email="test@example.com", name="  John Doe  ", password="securepass123"
     )
 
     assert dto.name == "John Doe"
@@ -42,11 +38,7 @@ def test_create_user_dto_strips_whitespace_from_name():
 def test_create_user_dto_empty_name_raises_error():
     """Test that empty name raises validation error."""
     with pytest.raises(ValidationError) as exc_info:
-        CreateUserDTO(
-            email="test@example.com",
-            name="",
-            password="securepass123"
-        )
+        CreateUserDTO(email="test@example.com", name="", password="securepass123")
 
     errors = exc_info.value.errors()
     assert len(errors) == 1
@@ -58,11 +50,7 @@ def test_create_user_dto_empty_name_raises_error():
 def test_create_user_dto_whitespace_only_name_raises_error():
     """Test that whitespace-only name raises validation error."""
     with pytest.raises(ValidationError) as exc_info:
-        CreateUserDTO(
-            email="test@example.com",
-            name="   ",
-            password="securepass123"
-        )
+        CreateUserDTO(email="test@example.com", name="   ", password="securepass123")
 
     errors = exc_info.value.errors()
     assert len(errors) == 1
@@ -74,11 +62,7 @@ def test_create_user_dto_whitespace_only_name_raises_error():
 def test_create_user_dto_short_password_raises_error():
     """Test that password shorter than 8 characters raises error."""
     with pytest.raises(ValidationError) as exc_info:
-        CreateUserDTO(
-            email="test@example.com",
-            name="John Doe",
-            password="short"
-        )
+        CreateUserDTO(email="test@example.com", name="John Doe", password="short")
 
     errors = exc_info.value.errors()
     assert len(errors) == 1
@@ -89,11 +73,7 @@ def test_create_user_dto_short_password_raises_error():
 def test_create_user_dto_7_character_password_raises_error():
     """Test edge case: 7 characters is too short."""
     with pytest.raises(ValidationError) as exc_info:
-        CreateUserDTO(
-            email="test@example.com",
-            name="John Doe",
-            password="1234567"
-        )
+        CreateUserDTO(email="test@example.com", name="John Doe", password="1234567")
 
     errors = exc_info.value.errors()
     assert len(errors) == 1
@@ -102,11 +82,7 @@ def test_create_user_dto_7_character_password_raises_error():
 
 def test_create_user_dto_8_character_password_valid():
     """Test edge case: exactly 8 characters is valid."""
-    dto = CreateUserDTO(
-        email="test@example.com",
-        name="John Doe",
-        password="12345678"
-    )
+    dto = CreateUserDTO(email="test@example.com", name="John Doe", password="12345678")
 
     assert dto.password == "12345678"
 
@@ -114,11 +90,7 @@ def test_create_user_dto_8_character_password_valid():
 def test_create_user_dto_invalid_email_raises_error():
     """Test that invalid email format raises error."""
     with pytest.raises(ValidationError) as exc_info:
-        CreateUserDTO(
-            email="invalid_email",
-            name="John Doe",
-            password="securepass123"
-        )
+        CreateUserDTO(email="invalid_email", name="John Doe", password="securepass123")
 
     errors = exc_info.value.errors()
     assert len(errors) == 1
@@ -128,11 +100,7 @@ def test_create_user_dto_invalid_email_raises_error():
 def test_create_user_dto_multiple_validation_errors():
     """Test that multiple validation errors are reported together."""
     with pytest.raises(ValidationError) as exc_info:
-        CreateUserDTO(
-            email="invalid_email",
-            name="",
-            password="short"
-        )
+        CreateUserDTO(email="invalid_email", name="", password="short")
 
     errors = exc_info.value.errors()
     # Should have 3 errors: email, name, password
@@ -162,10 +130,7 @@ def test_update_user_dto_valid_email():
 
 def test_update_user_dto_both_fields():
     """Test updating both fields."""
-    dto = UpdateUserDTO(
-        email="new@example.com",
-        name="Jane Doe"
-    )
+    dto = UpdateUserDTO(email="new@example.com", name="Jane Doe")
 
     assert dto.email == "new@example.com"
     assert dto.name == "Jane Doe"
@@ -230,10 +195,7 @@ def test_update_user_dto_invalid_email_raises_error():
 def test_update_user_dto_multiple_validation_errors():
     """Test that multiple validation errors are reported together."""
     with pytest.raises(ValidationError) as exc_info:
-        UpdateUserDTO(
-            email="invalid_email",
-            name=""
-        )
+        UpdateUserDTO(email="invalid_email", name="")
 
     errors = exc_info.value.errors()
     assert len(errors) == 2

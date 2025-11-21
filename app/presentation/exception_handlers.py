@@ -12,6 +12,7 @@ To add a new exception:
 """
 
 import logging
+
 from fastapi import Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -21,12 +22,13 @@ from app.application.exceptions import ApplicationError
 from app.domain.exceptions import DomainException
 from app.presentation.error_codes import get_http_status_for_error_code
 
-
 # Configure logger (in production, use proper logging configuration)
 logger = logging.getLogger(__name__)
 
 
-async def application_error_handler(request: Request, exc: ApplicationError) -> JSONResponse:
+async def application_error_handler(
+    request: Request, exc: ApplicationError
+) -> JSONResponse:
     """
     Handle ALL application layer exceptions.
 
@@ -47,7 +49,9 @@ async def application_error_handler(request: Request, exc: ApplicationError) -> 
     )
 
 
-async def domain_exception_handler(request: Request, exc: DomainException) -> JSONResponse:
+async def domain_exception_handler(
+    request: Request, exc: DomainException
+) -> JSONResponse:
     """
     Handle ALL domain layer exceptions.
 
@@ -65,7 +69,9 @@ async def domain_exception_handler(request: Request, exc: DomainException) -> JS
     )
 
 
-async def validation_error_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
+async def validation_error_handler(
+    request: Request, exc: RequestValidationError
+) -> JSONResponse:
     """
     Handle Pydantic validation errors from request data.
 
@@ -83,10 +89,12 @@ async def validation_error_handler(request: Request, exc: RequestValidationError
         # Build field path (e.g., "body.email" or "query.page")
         field_location = ".".join(str(loc) for loc in error["loc"])
 
-        validation_errors.append({
-            "field": field_location,
-            "message": error["msg"],
-        })
+        validation_errors.append(
+            {
+                "field": field_location,
+                "message": error["msg"],
+            }
+        )
 
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -98,7 +106,9 @@ async def validation_error_handler(request: Request, exc: RequestValidationError
     )
 
 
-async def database_error_handler(request: Request, exc: SQLAlchemyError) -> JSONResponse:
+async def database_error_handler(
+    request: Request, exc: SQLAlchemyError
+) -> JSONResponse:
     """
     Handle database errors.
 

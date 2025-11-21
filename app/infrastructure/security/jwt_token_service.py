@@ -13,15 +13,14 @@ This design allows us to:
 3. Keep the domain layer pure and framework-agnostic
 """
 
-from datetime import datetime, timedelta, timezone
-from typing import Optional
 import uuid
+from datetime import UTC, datetime, timedelta
 
 import jwt
-from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
+from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 
-from app.domain.services.token_service import ITokenService, TokenData
 from app.domain.repositories.token_repository import ITokenRepository, TokenMetadata
+from app.domain.services.token_service import ITokenService, TokenData
 
 
 class JWTTokenService(ITokenService):
@@ -100,7 +99,7 @@ class JWTTokenService(ITokenService):
             >>> print(token)
             "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMi..."
         """
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         expires_at = now + timedelta(minutes=self._access_token_expire_minutes)
         token_id = str(uuid.uuid4())
 
@@ -119,8 +118,8 @@ class JWTTokenService(ITokenService):
         self,
         user_id: int,
         email: str,
-        family_id: Optional[str] = None,
-        parent_token_id: Optional[str] = None,
+        family_id: str | None = None,
+        parent_token_id: str | None = None,
         rotation_sequence: int = 0,
     ) -> str:
         """
@@ -142,7 +141,7 @@ class JWTTokenService(ITokenService):
         Returns:
             Encoded JWT refresh token
         """
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         expires_at = now + timedelta(days=self._refresh_token_expire_days)
         token_id = str(uuid.uuid4())
 
@@ -164,7 +163,7 @@ class JWTTokenService(ITokenService):
 
         return jwt.encode(payload, self._secret_key, algorithm=self._algorithm)
 
-    def verify_token(self, token: str) -> Optional[TokenData]:
+    def verify_token(self, token: str) -> TokenData | None:
         """
         Verify and decode a JWT access token.
 
@@ -202,8 +201,8 @@ class JWTTokenService(ITokenService):
             # Extract data
             user_id = int(payload.get("sub"))
             email = payload.get("email")
-            iat = datetime.fromtimestamp(payload.get("iat"), tz=timezone.utc)
-            exp = datetime.fromtimestamp(payload.get("exp"), tz=timezone.utc)
+            iat = datetime.fromtimestamp(payload.get("iat"), tz=UTC)
+            exp = datetime.fromtimestamp(payload.get("exp"), tz=UTC)
             token_id = payload.get("jti")
 
             return TokenData(
@@ -218,7 +217,7 @@ class JWTTokenService(ITokenService):
             # Token is invalid, expired, or malformed
             return None
 
-    def verify_refresh_token(self, token: str) -> Optional[TokenData]:
+    def verify_refresh_token(self, token: str) -> TokenData | None:
         """
         Verify and decode a JWT refresh token.
 
@@ -246,8 +245,8 @@ class JWTTokenService(ITokenService):
 
             user_id = int(payload.get("sub"))
             email = payload.get("email")
-            iat = datetime.fromtimestamp(payload.get("iat"), tz=timezone.utc)
-            exp = datetime.fromtimestamp(payload.get("exp"), tz=timezone.utc)
+            iat = datetime.fromtimestamp(payload.get("iat"), tz=UTC)
+            exp = datetime.fromtimestamp(payload.get("exp"), tz=UTC)
             token_id = payload.get("jti")
             family_id = payload.get("fid")
             parent_token_id = payload.get("pid")  # Parent token ID

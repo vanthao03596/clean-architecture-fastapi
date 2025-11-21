@@ -1,7 +1,6 @@
 """User repository implementation using SQLAlchemy."""
 
-from typing import Optional, List
-from sqlalchemy import select, func
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.entities.user import User
@@ -30,7 +29,7 @@ class UserRepository(IUserRepository):
         """
         self._session = session
 
-    async def get_by_id(self, id: int) -> Optional[User]:
+    async def get_by_id(self, id: int) -> User | None:
         """Get user by ID."""
         result = await self._session.execute(
             select(UserModel).where(UserModel.id == id)
@@ -42,7 +41,7 @@ class UserRepository(IUserRepository):
 
         return user_model.to_entity()
 
-    async def get_all(self, skip: int = 0, limit: int = 100) -> List[User]:
+    async def get_all(self, skip: int = 0, limit: int = 100) -> list[User]:
         """Get all users with pagination."""
         result = await self._session.execute(
             select(UserModel).offset(skip).limit(limit)
@@ -118,7 +117,7 @@ class UserRepository(IUserRepository):
         )
         return result.scalar_one_or_none() is not None
 
-    async def get_by_email(self, email: str) -> Optional[User]:
+    async def get_by_email(self, email: str) -> User | None:
         """Get user by email address."""
         result = await self._session.execute(
             select(UserModel).where(UserModel.email == email)
