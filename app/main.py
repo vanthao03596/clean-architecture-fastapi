@@ -78,8 +78,6 @@ async def show_config(settings: Settings = Depends(get_settings)) -> dict[str, s
         "environment": settings.environment,
         "app_name": settings.app_name,
         "app_version": settings.app_version,
-        "database_host": settings.db_host,
-        "database_name": settings.db_name,
         "debug": settings.debug,
         "cors_origins": settings.cors_origins_list,
     }
