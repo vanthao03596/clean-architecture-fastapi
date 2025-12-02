@@ -59,14 +59,14 @@ cd clean-architecture-fastapi
 ### 2. Create Virtual Environment
 
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+uv venv
+source .venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
 ### 3. Install Dependencies
 
 ```bash
-pip install -r requirements.txt
+uv sync
 ```
 
 ### 4. Configure Environment
