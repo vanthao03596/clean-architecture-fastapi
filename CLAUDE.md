@@ -152,6 +152,11 @@ service = UserService(
 
 ## Code Quality
 
+### Type Safety
+- **Never use `# type: ignore`** - use `assert` to narrow types instead
+- Entity fields like `id`, `created_at` are `T | None` before persistence but guaranteed after DB retrieval
+- Use assertions before accessing these fields: `assert entity.id is not None`
+
 ### Linting & Formatting
 ```bash
 # Format code with Black
