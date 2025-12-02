@@ -164,6 +164,28 @@ ruff check app/ tests/
 mypy app/
 ```
 
+### SQLAlchemy Model Type Hints
+Use `TYPE_CHECKING` for forward references in SQLAlchemy relationships to avoid circular imports:
+
+```python
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.infrastructure.persistence.models.other_model import OtherModel
+
+class MyModel(Base):
+    # No quotes needed in Mapped[] when using `from __future__ import annotations`
+    other: Mapped[OtherModel] = relationship("OtherModel", ...)
+```
+
+**Rules:**
+- Always add `from __future__ import annotations` at the top of model files
+- Import related models inside `if TYPE_CHECKING:` block for type hints only
+- Keep string in `relationship("OtherModel")` - SQLAlchemy resolves this at runtime
+- Never use `# noqa: F821` for undefined forward references - use `TYPE_CHECKING` instead
+- Never use bottom-of-file imports to resolve circular dependencies
+
 ## Exception Handling Strategy
 
 The application uses a **hierarchical exception system** with just 5 global handlers:
